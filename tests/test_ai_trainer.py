@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 
 class TestDataAugmentation:
     def test_factory(self):
-        from .unet import DataAugmentation
+        from strainmap_ai.unet import DataAugmentation
         import toml
         from pathlib import Path
 
-        filename = Path(__file__).parent / "ai_config.toml"
+        filename = Path(__file__).parent.parent / "strainmap_ai" / "ai_config.toml"
         config = toml.load(filename)["augmentation"]
 
         da = DataAugmentation.factory()
@@ -18,7 +18,7 @@ class TestDataAugmentation:
         assert da.include_original == config["include_original"]
 
     def test_transform(self):
-        from .unet import DataAugmentation
+        from strainmap_ai.unet import DataAugmentation
         import numpy as np
 
         def double(d):
@@ -34,7 +34,7 @@ class TestDataAugmentation:
         assert actual == pytest.approx(data * 2 ** n)
 
     def test_augment(self):
-        from .unet import DataAugmentation
+        from strainmap_ai.unet import DataAugmentation
         import numpy as np
 
         def double(d):
@@ -61,7 +61,7 @@ class TestDataAugmentation:
         assert aug_lbl.shape == (n * (da.times + 1), h, w)
 
     def test__group(self):
-        from .unet import DataAugmentation
+        from strainmap_ai.unet import DataAugmentation
         import numpy as np
 
         n = 3
@@ -76,7 +76,7 @@ class TestDataAugmentation:
         assert (grouped[-n:] == labels).all()
 
     def test__ungroup(self):
-        from .unet import DataAugmentation
+        from strainmap_ai.unet import DataAugmentation
         import numpy as np
 
         n = 3
@@ -92,12 +92,12 @@ class TestDataAugmentation:
 
 class TestNormal:
     def test_avail(self):
-        from .unet import Normal
+        from strainmap_ai.unet import Normal
 
         assert len(Normal.avail()) >= 1
 
     def test_register(self):
-        from .unet import Normal
+        from strainmap_ai.unet import Normal
 
         @Normal.register
         def my_norm():
@@ -107,7 +107,7 @@ class TestNormal:
         del Normal._normalizers["my_norm"]
 
     def test_run(self):
-        from .unet import Normal
+        from strainmap_ai.unet import Normal
 
         fun = MagicMock(__name__="my_norm")
         Normal.register(fun)

@@ -7,8 +7,8 @@ from functools import partial, reduce
 import tempfile
 
 import numpy as np
-from tensorflow.python.keras import layers
-from tensorflow.python.keras.models import Model
+from keras import layers
+from keras.models import Model
 from tensorlayer import prepro
 import toml
 
