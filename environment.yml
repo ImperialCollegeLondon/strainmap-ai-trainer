@@ -13,5 +13,6 @@ dependencies:
   - tensorflow
   - opencv
   - matplotlib
+  - pre_commit
   - pip:
     - tensorlayer
