@@ -32,7 +32,7 @@ jobs:
           use-quiet-mode: 'yes'
           use-verbose-mode: 'yes'
           
-  build:
+  test:
     # The type of runner that the job will run on
     needs: qa
     runs-on: ${{ matrix.os }}
@@ -71,3 +71,6 @@ jobs:
 
       - name: Check conda
         run: conda info
+
+      - name: Test code
+        run: python -m pytest
