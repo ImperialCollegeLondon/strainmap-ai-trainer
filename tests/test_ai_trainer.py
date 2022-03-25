@@ -154,9 +154,9 @@ class TestUNet:
 
     def test_conv_block(self, mocker):
         import numpy as np
+        from keras import layers
 
         from strainmap_ai.unet import UNet
-        from keras import layers
 
         sp_activation = mocker.spy(layers, "Activation")
 
@@ -171,9 +171,9 @@ class TestUNet:
 
     def test_deconv_block(self, mocker):
         import numpy as np
+        from keras import layers
 
         from strainmap_ai.unet import UNet
-        from keras import layers
 
         sp_conv_transpose = mocker.spy(layers, "Conv2DTranspose")
         sp_concatenate = mocker.spy(layers, "concatenate")
@@ -193,8 +193,9 @@ class TestUNet:
 
         Just making sure that the return value is a Model object.
         """
-        from strainmap_ai.unet import UNet
         from keras.models import Model
+
+        from strainmap_ai.unet import UNet
 
         model = UNet()._modelstruct()
         assert isinstance(model, Model)
