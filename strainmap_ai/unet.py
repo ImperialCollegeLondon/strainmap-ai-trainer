@@ -167,7 +167,7 @@ class UNet:
 
         if model_file == "default" and self.model_file is not None:
             self.model.load_weights(self.model_file)
-        elif model_file is not None:
+        elif model_file != "default" and model_file is not None:
             self.model.load_weights(model_file)
 
     def train(

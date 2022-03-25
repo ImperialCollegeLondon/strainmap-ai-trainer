@@ -3,16 +3,20 @@ from unittest.mock import MagicMock
 import pytest
 
 
-class TestDataAugmentation:
-    def test_factory(self):
-        from pathlib import Path
+@pytest.fixture
+def model_file():
+    from pathlib import Path
 
+    return Path(__file__).parent.parent / "strainmap_ai" / "ai_config.toml"
+
+
+class TestDataAugmentation:
+    def test_factory(self, model_file):
         import toml
 
         from strainmap_ai.unet import DataAugmentation
 
-        filename = Path(__file__).parent.parent / "strainmap_ai" / "ai_config.toml"
-        config = toml.load(filename)["augmentation"]
+        config = toml.load(model_file)["augmentation"]
 
         da = DataAugmentation.factory()
         assert len(da.steps) == len([c for c in config["active"]])
@@ -125,34 +129,127 @@ class TestNormal:
 
 
 class TestUNet:
-    @pytest.mark.xfail
-    def test_factory(self):
-        assert False
+    def test_factory(self, model_file, tmpdir):
+        import toml
 
-    @pytest.mark.xfail
+        from strainmap_ai.unet import UNet
+
+        config = toml.load(model_file)
+        config["Net"]["model_name"] = "my test model"
+        new_model = tmpdir / "new_model.toml"
+        toml.dump(config, new_model)
+
+        net = UNet.factory(new_model)
+        assert net.model_name == "my test model"
+
     def test_model(self):
-        assert False
+        from strainmap_ai.unet import UNet
 
-    @pytest.mark.xfail
-    def test__conv_block(self):
-        assert False
+        net = UNet()
+        with pytest.raises(RuntimeError):
+            net.model
 
-    @pytest.mark.xfail
-    def test__deconv_block(self):
-        assert False
+        net._model = "a model"
+        assert net.model == net._model
 
-    @pytest.mark.xfail
-    def test__modelstruct(self):
-        assert False
+    def test_conv_block(self, mocker):
+        import numpy as np
 
-    @pytest.mark.xfail
+        from strainmap_ai.unet import UNet
+        from keras import layers
+
+        sp_activation = mocker.spy(layers, "Activation")
+
+        net = UNet()
+
+        tensor = np.random.rand(10, 10, 10, 10)
+        repetitions = 5
+        actual = net._conv_block(tensor, net.filters, repetitions=repetitions)
+        assert actual.shape[0] == tensor.shape[0]
+        assert actual.shape[-1] == net.filters
+        assert sp_activation.call_count == repetitions
+
+    def test_deconv_block(self, mocker):
+        import numpy as np
+
+        from strainmap_ai.unet import UNet
+        from keras import layers
+
+        sp_conv_transpose = mocker.spy(layers, "Conv2DTranspose")
+        sp_concatenate = mocker.spy(layers, "concatenate")
+
+        net = UNet()
+        net._conv_block = MagicMock()
+
+        tensor = np.random.rand(10, 10, 10, 10)
+        residual = np.random.rand(10, 20, 20, net.filters)
+        net._deconv_block(tensor, residual, net.filters)
+        sp_conv_transpose.assert_called()
+        sp_concatenate.assert_called()
+        net._conv_block.assert_called()
+
+    def test_modelstruct(self):
+        """Nothing to test here as the exact sequence might change.
+
+        Just making sure that the return value is a Model object.
+        """
+        from strainmap_ai.unet import UNet
+        from keras.models import Model
+
+        model = UNet()._modelstruct()
+        assert isinstance(model, Model)
+
     def test_compile_model(self):
-        assert False
+        from strainmap_ai.unet import UNet
 
-    @pytest.mark.xfail
+        net = UNet()
+
+        class Mockdel:
+            compile = MagicMock()
+            summary = MagicMock()
+            load_weights = MagicMock()
+
+        model = Mockdel()
+        net._modelstruct = MagicMock(return_value=model)
+
+        net.compile_model()
+        model.compile.assert_called()
+        model.summary.assert_called()
+        model.load_weights.assert_not_called()
+
+        net.model_file = "a model path"
+        net.compile_model()
+        model.load_weights.assert_called_with("a model path")
+
+        net.compile_model(model_file="another path")
+        model.load_weights.assert_called_with("another path")
+
     def test_train(self):
-        assert False
+        import numpy as np
 
-    @pytest.mark.xfail
+        from strainmap_ai.unet import UNet
+
+        net = UNet()
+        net._model = MagicMock()
+        net._model.fit = MagicMock()
+        net._model.save_weights = MagicMock()
+
+        net.train(np.array([]), np.array([]), model_file="a path")
+        net._model.fit.assert_called()
+        net._model.save_weights.assert_called_with("a path")
+
     def test_infer(self):
-        assert False
+        import numpy as np
+
+        from strainmap_ai.unet import UNet
+
+        result = np.random.rand(10, 10, 10)
+        expected = (result[..., 0] > 0.5).astype(float)
+
+        net = UNet()
+        net._model = MagicMock()
+        net._model.predict = MagicMock(return_value=result)
+
+        actual = net.infer(np.array([]))
+        net._model.predict.assert_called()
+        np.testing.assert_equal(actual, expected)
