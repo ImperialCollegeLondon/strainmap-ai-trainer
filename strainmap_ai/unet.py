@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Callable, Tuple
-from pathlib import Path
-from functools import partial, reduce
 import tempfile
+from dataclasses import dataclass, field
+from functools import partial, reduce
+from pathlib import Path
+from typing import Callable, Dict, Optional, Tuple
 
 import numpy as np
+import toml
 from keras import layers
 from keras.models import Model
 from tensorlayer import prepro
-import toml
 
 
 @dataclass

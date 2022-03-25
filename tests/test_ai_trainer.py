@@ -1,12 +1,15 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 
 class TestDataAugmentation:
     def test_factory(self):
-        from strainmap_ai.unet import DataAugmentation
-        import toml
         from pathlib import Path
+
+        import toml
+
+        from strainmap_ai.unet import DataAugmentation
 
         filename = Path(__file__).parent.parent / "strainmap_ai" / "ai_config.toml"
         config = toml.load(filename)["augmentation"]
@@ -18,8 +21,9 @@ class TestDataAugmentation:
         assert da.include_original == config["include_original"]
 
     def test_transform(self):
-        from strainmap_ai.unet import DataAugmentation
         import numpy as np
+
+        from strainmap_ai.unet import DataAugmentation
 
         def double(d):
             return 2 * d
@@ -34,8 +38,9 @@ class TestDataAugmentation:
         assert actual == pytest.approx(data * 2 ** n)
 
     def test_augment(self):
-        from strainmap_ai.unet import DataAugmentation
         import numpy as np
+
+        from strainmap_ai.unet import DataAugmentation
 
         def double(d):
             return 2 * d
@@ -61,8 +66,9 @@ class TestDataAugmentation:
         assert aug_lbl.shape == (n * (da.times + 1), h, w)
 
     def test__group(self):
-        from strainmap_ai.unet import DataAugmentation
         import numpy as np
+
+        from strainmap_ai.unet import DataAugmentation
 
         n = 3
         c = 2
@@ -76,8 +82,9 @@ class TestDataAugmentation:
         assert (grouped[-n:] == labels).all()
 
     def test__ungroup(self):
-        from strainmap_ai.unet import DataAugmentation
         import numpy as np
+
+        from strainmap_ai.unet import DataAugmentation
 
         n = 3
         c = 2

@@ -9,7 +9,7 @@ conda env create --file environment.yml
 ```
 
 which will install the `pytest` testing framework and install `tensorflow` compiled for
-using CPUs. 
+using CPUs.
 
 For production in an appropriate GPU-capable system, use:
 
@@ -17,4 +17,4 @@ For production in an appropriate GPU-capable system, use:
 conda env create --file environment_gpu.yml
 ```
 
-which will not install `pytest` and `tensorflow` will be compiled with GPU support. 
+which will not install `pytest` and `tensorflow` will be compiled with GPU support.
