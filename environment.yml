@@ -14,5 +14,6 @@ dependencies:
   - opencv
   - matplotlib
   - pre_commit
+  - pytest-mock
   - pip:
     - tensorlayer
