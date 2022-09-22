@@ -15,5 +15,8 @@ dependencies:
   - matplotlib
   - pre_commit
   - pytest-mock
+  - xarray
+  - dask
+  - netcdf4
   - pip:
     - tensorlayer

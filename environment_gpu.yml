@@ -12,5 +12,8 @@ dependencies:
   - tensorflow-gpu
   - opencv
   - matplotlib
+  - xarray
+  - dask
+  - netcdf4
   - pip:
     - tensorlayer
