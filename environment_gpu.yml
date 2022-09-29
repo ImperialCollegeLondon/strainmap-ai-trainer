@@ -15,5 +15,6 @@ dependencies:
   - xarray
   - dask
   - netcdf4
+  - pandas
   - pip:
     - tensorlayer
