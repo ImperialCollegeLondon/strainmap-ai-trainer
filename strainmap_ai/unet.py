@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import tempfile
 from dataclasses import dataclass, field
 from functools import partial, reduce
 from pathlib import Path
@@ -15,7 +14,6 @@ from keras.models import Model
 
 # from tensorlayer import prepro
 from . import preprocessing as prepro
-from .readers import read_files
 
 logger = logging.getLogger(__name__)
 
