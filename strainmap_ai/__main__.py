@@ -12,9 +12,16 @@ if __name__ == "__main__":
         type=str,
         help="Path to start the search for data files, which must end in '_train.nc'.",
     )
+    parser.add_argument(
+        "--model_path",
+        type=str,
+        help="Path where the trained model should be saved (default =  None).",
+    )
     args = parser.parse_args()
 
     filenames = Path(__file__).parent.parent.parent / "Data"
     filenames = Path(args.datapath).resolve()
+    model_path = Path(args.model_path).resolve() if args.model_path else None
     print(filenames)
+    print(model_path)
     train(filenames)
