@@ -5,7 +5,7 @@ from typing import Optional
 import numpy as np
 
 from .readers import load_data
-from .unet import DataAugmentation, Normal, UNet
+from .unet import DataAugmentation, UNet
 
 logger = logging.getLogger(__name__)
 
@@ -14,15 +14,14 @@ def train(filenames: Path, model_file: Optional[Path] = None) -> None:
 
     # Data compiling and loading
     # read CSV file
+    logger.info("Starting data loading...")
     data = load_data(filenames)
-    # labels = np.array(data.sel(comp="LABELS").data)
-    # images = np.array(data.sel(comp=["MAG", "X", "Y", "Z"]).data)
-    logger.info("Data loading complete! Starting pre-processing")
 
-    # Data pre-processing
-    # images = Normal.run(images, "zeromean_unitvar")
+    logger.info("Data loading complete! Starting pre-processing...")
     augmented = DataAugmentation.factory().augment(data)
     logger.info("Data pre-processing complete!")
+
+    # TODO: Normalisation step
 
     # Model training
     model = UNet.factory()
