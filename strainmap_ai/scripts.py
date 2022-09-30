@@ -35,4 +35,4 @@ def train(filenames: Path, model_file: Optional[Path] = None) -> None:
     model = UNet.factory()
     model.compile_model()
     model.train(np.asarray(images), np.asarray(labels), model_file)
-    logger.info(f"Training complete! Teained model saved to {model_file}")
+    logger.info(f"Training complete! Trained model saved to: {model_file}")

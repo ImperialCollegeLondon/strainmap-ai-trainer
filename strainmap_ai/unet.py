@@ -205,7 +205,7 @@ class UNet:
         )
 
         if model_file is not None:
-            self.model.save_weights(model_file)
+            self.model.save(model_file)
 
     def infer(self, images: np.ndarray) -> np.ndarray:
         """Use the model to predict the labels given the input images.
