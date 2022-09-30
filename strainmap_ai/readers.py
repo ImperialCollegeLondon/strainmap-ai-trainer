@@ -24,7 +24,7 @@ def load_data(filename: Path) -> xr.DataArray:
     if filename.suffix == "csv":
         filenames = filenames_from_csv(filename)
     elif filename.is_dir():
-        filenames = str(filename / "**" / "*_train.nc")
+        filenames = list(filename.glob("**/*_train.nc"))
     else:
         raise ValueError("'filename' must be the path to a CSV file or to a directory.")
 
