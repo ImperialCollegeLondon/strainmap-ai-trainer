@@ -34,6 +34,8 @@ def train(filenames: Path, model_file: Optional[Path] = None) -> None:
     # Model training
     logger.info("Starting AI training (this might take a while)...")
     model = UNet.factory()
+    model.img_height = images.sizes("row")
+    model.img_width = images.sizes("col")
     model.compile_model()
     model.train(np.asarray(images), np.asarray(labels), model_file)
     logger.info(f"Training complete! Trained model saved to: {model_file}")

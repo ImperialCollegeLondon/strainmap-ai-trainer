@@ -7,7 +7,7 @@ nclasses = 1
 filters = 64
 batch_size = 8
 epochs = 5
-verbose = 1
+verbose = 2
 callbacks = "None"
 validation_split = 0.05
 shuffle = true
@@ -18,9 +18,9 @@ model_file = "None"
 
 # Configuration for the augmentation process
 [augmentation]
-times = 4
+times = 0
 axis = 0
-include_original = false
+include_original = true
 
 [[augmentation.active]]
 method = "vertical_flip"
