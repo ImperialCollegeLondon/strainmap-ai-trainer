@@ -11,13 +11,18 @@ logger = logging.getLogger(__name__)
 
 
 def train(filenames: Path, model_file: Optional[Path] = None) -> None:
-    crop = slice(100, -100, 1)
+    crop = 128
 
     # Data compiling and loading
     # read CSV file
     logger.info("Starting data loading...")
-    data = load_data(filenames).sel(row=crop, col=crop)
+    data = load_data(filenames)
+    max_rows = data.sizes["row"] - crop
+    max_cols = data.sizes["col"] - crop
+    data = data.sel(row=range(crop, max_rows), col=range(crop, max_cols))
     logger.info("... data loading complete!")
+    rows = data.sizes["row"]
+    cols = data.sizes["col"]
 
     logger.info("Starting pre-processing...")
     augmented = DataAugmentation.factory().augment(data)
@@ -34,8 +39,8 @@ def train(filenames: Path, model_file: Optional[Path] = None) -> None:
     # Model training
     logger.info("Starting AI training (this might take a while)...")
     model = UNet.factory()
-    model.img_height = images.sizes("row")
-    model.img_width = images.sizes("col")
+    model.img_height = rows
+    model.img_width = cols
     model.compile_model()
     model.train(np.asarray(images), np.asarray(labels), model_file)
     logger.info(f"Training complete! Trained model saved to: {model_file}")
