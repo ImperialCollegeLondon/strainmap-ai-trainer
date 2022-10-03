@@ -281,6 +281,19 @@ def zero2one(data: np.ndarray) -> np.ndarray:
 
 
 @Normal.register
+def ubytes(data: np.ndarray) -> np.ndarray:
+    """Data is normalized to unsigned byte size (0, 255).
+
+    Args:
+        data: Array with the data to normalize.
+
+    Return:
+        A new array with the same shape than input and the data normalized.
+    """
+    return (data / data.max() * np.iinfo(np.uint8).max).round().astype(np.uint8)
+
+
+@Normal.register
 def zeromean_unitvar(data: np.ndarray) -> np.ndarray:
     """Data is normalized to have mean equal to zero and variance equal to one.
 

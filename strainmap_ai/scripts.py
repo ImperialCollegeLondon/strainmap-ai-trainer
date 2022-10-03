@@ -11,11 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 def train(filenames: Path, model_file: Optional[Path] = None) -> None:
+    crop = slice(100, -100, 1)
 
     # Data compiling and loading
     # read CSV file
     logger.info("Starting data loading...")
-    data = load_data(filenames)
+    data = load_data(filenames).sel(row=crop, col=crop)
     logger.info("... data loading complete!")
 
     logger.info("Starting pre-processing...")
@@ -26,7 +27,7 @@ def train(filenames: Path, model_file: Optional[Path] = None) -> None:
     logger.info("Starting data normalisation...")
     labels = augmented.sel(comp="LABELS").data
     images = Normal().run(
-        augmented.sel(comp=["MAG", "X", "Y", "Z"]).data, method="zeromean_unitvar"
+        augmented.sel(comp=["MAG", "X", "Y", "Z"]).data, method="ubytes"
     )
     logger.info("... data normalisation complete!")
 

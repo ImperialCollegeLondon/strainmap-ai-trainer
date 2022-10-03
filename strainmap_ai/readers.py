@@ -33,7 +33,7 @@ def load_data(filename: Path) -> xr.DataArray:
 
 if __name__ == "__main__":
 
-    filenames = Path(__file__).parent.parent.parent / "Data"
+    filenames = Path(__file__).parent.parent.parent.parent / "Data"
     print(filenames)
     data = load_data(filenames)
     print(np.array(data.sel(comp=["MAG", "X", "Y", "Z"])).shape)
