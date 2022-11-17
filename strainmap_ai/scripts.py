@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def train(filenames: Path, model_file: Optional[Path] = None) -> None:
-    crop = 128
+    crop = 64
 
     # Data compiling and loading
     # read CSV file

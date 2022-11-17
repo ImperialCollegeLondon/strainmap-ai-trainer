@@ -290,7 +290,7 @@ def ubytes(data: np.ndarray) -> np.ndarray:
     Return:
         A new array with the same shape than input and the data normalized.
     """
-    return (data / data.max() * np.iinfo(np.uint8).max).round().astype(np.uint8)
+    return (data / data.max() * np.iinfo(np.uint16).max).round().astype(np.uint16)
 
 
 @Normal.register
