@@ -10,5 +10,5 @@ cd $HOME/STRAINMAP/strainmap-ai-trainer
 
 # Generic:
 # python -m strainmap_ai NETCDF_FILES --model_path TRINED_MODEL
-python -m strainmap_ai ../../Data/ --model_path trained/model_from_AD_img
+python -m strainmap_ai ../../Data/ --model_path trained/crop64_int16_all_noaug
 

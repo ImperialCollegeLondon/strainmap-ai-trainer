@@ -131,3 +131,6 @@ dmypy.json
 # PBS output files
 *.pbs.o*
 *.pbs.e*
+
+# Trained models
+trained/*
