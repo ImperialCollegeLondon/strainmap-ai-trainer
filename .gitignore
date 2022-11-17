@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# PBS output files
+*.pbs.o*
+*.pbs.e*
