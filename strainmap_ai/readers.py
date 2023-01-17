@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 import xarray as xr
