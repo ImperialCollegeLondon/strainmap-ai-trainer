@@ -164,7 +164,7 @@ class UNet:
         """
         self._model = self._modelstruct()
         self.model.compile(
-            optimizer="adam", loss="binary_crossentropy", metrics=["acc"]
+            optimizer="adam", loss="binary_crossentropy", metrics=["acc", "MeanIoU"]
         )
 
         if print_summary:
