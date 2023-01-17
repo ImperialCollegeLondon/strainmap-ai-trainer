@@ -25,5 +25,5 @@ def flip_axis_multi(images: xr.DataArray, dim: str, is_random=False) -> xr.DataA
 
     logger.info(f"Flipping dimension: {dim}.")
     flip = images.copy()
-    flip.data[...] = flip.isel({dim:slice(None, None, -1)}).data
+    flip.data[...] = flip.isel({dim: slice(None, None, -1)}).data
     return flip

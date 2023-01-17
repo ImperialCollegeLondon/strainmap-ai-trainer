@@ -39,7 +39,7 @@ class TestDataAugmentation:
         ] * n
         data = np.random.random((5, 5))
         actual = da.transform(data)
-        assert actual == pytest.approx(data * 2 ** n)
+        assert actual == pytest.approx(data * 2**n)
 
     def test_augment(self):
         import numpy as np

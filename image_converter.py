@@ -1,8 +1,10 @@
-import cv2
-from pathlib import Path
-from strainmap_ai.readers import load_data
-import numpy as np
 from logging import getLogger
+from pathlib import Path
+
+import cv2
+import numpy as np
+
+from strainmap_ai.readers import load_data
 
 data = load_data(Path("../../Data").resolve())
 output = Path("../Data/All").resolve()
