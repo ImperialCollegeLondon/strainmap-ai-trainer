@@ -17,9 +17,15 @@ def create_parser() -> argparse.ArgumentParser:
         help="Path to start the search for data files, which must end in '_train.nc'.",
     )
     parser.add_argument(
+        "--test",
+        type=str,
+        help="Initials of patients to use for testing, separated by commas. eg. 'DA,WS'"
+        "(default = None)",
+    )
+    parser.add_argument(
         "--model_path",
         type=str,
-        help="Path where the trained model should be saved (default =  None).",
+        help="Path where the trained model should be saved (default = None).",
     )
     return parser
 
@@ -32,7 +38,8 @@ if __name__ == "__main__":
     # filenames = Path(__file__).parent.parent.parent / "Data"
     filenames = Path(args.datapath).resolve()
     model_path = Path(args.model_path).resolve() if args.model_path else None
+    test_patients = tuple(args.test.split(",")) if args.model_path else ()
     logger.info(f"Path where to search for data files: {filenames}")
     logger.info(f"Path where the trained model will be saved: {model_path}")
 
-    train(filenames=filenames, model_file=model_path)
+    train(filenames=filenames, model_file=model_path, test_patients=test_patients)

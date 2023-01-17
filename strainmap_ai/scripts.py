@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 
@@ -10,13 +10,15 @@ from .unet import DataAugmentation, Normal, UNet
 logger = logging.getLogger(__name__)
 
 
-def train(filenames: Path, model_file: Optional[Path] = None) -> None:
+def train(
+    filenames: Path, model_file: Optional[Path] = None, test_patients: Tuple = ()
+) -> None:
     crop = 64
 
     # Data compiling and loading
     # read CSV file
     logger.info("Starting data loading...")
-    data = load_data(filenames)
+    data = load_data(filenames, test_patients)
     max_rows = data.sizes["row"] - crop
     max_cols = data.sizes["col"] - crop
     data = data.sel(row=range(crop, max_rows), col=range(crop, max_cols))
