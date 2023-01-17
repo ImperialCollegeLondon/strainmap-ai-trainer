@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import tempfile
+import logging
 from dataclasses import dataclass, field
 from functools import partial, reduce
 from pathlib import Path
@@ -8,9 +8,14 @@ from typing import Callable, Dict, Optional, Tuple
 
 import numpy as np
 import toml
+import xarray as xr
 from keras import layers
 from keras.models import Model
-from tensorlayer import prepro
+
+# from tensorlayer import prepro
+from . import preprocessing as prepro
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -200,7 +205,7 @@ class UNet:
         )
 
         if model_file is not None:
-            self.model.save_weights(model_file)
+            self.model.save(model_file)
 
     def infer(self, images: np.ndarray) -> np.ndarray:
         """Use the model to predict the labels given the input images.
@@ -276,6 +281,19 @@ def zero2one(data: np.ndarray) -> np.ndarray:
 
 
 @Normal.register
+def ubytes(data: np.ndarray) -> np.ndarray:
+    """Data is normalized to unsigned byte size (0, 255).
+
+    Args:
+        data: Array with the data to normalize.
+
+    Return:
+        A new array with the same shape than input and the data normalized.
+    """
+    return (data / data.max() * np.iinfo(np.uint16).max).round().astype(np.uint16)
+
+
+@Normal.register
 def zeromean_unitvar(data: np.ndarray) -> np.ndarray:
     """Data is normalized to have mean equal to zero and variance equal to one.
 
@@ -290,13 +308,13 @@ def zeromean_unitvar(data: np.ndarray) -> np.ndarray:
 
 class DataAugmentation:
     _method: Dict[str, Callable] = {
-        "vertical_flip": partial(prepro.flip_axis_multi, axis=1),
-        "horizontal_flip": partial(prepro.flip_axis_multi, axis=2),
-        "rotation": prepro.rotation_multi,
-        "elastic": prepro.elastic_transform_multi,
-        "shift": prepro.shift_multi,
-        "shear": prepro.shear_multi,
-        "zoom": prepro.zoom_multi,
+        "vertical_flip": partial(prepro.flip_axis_multi, dim="row"),
+        "horizontal_flip": partial(prepro.flip_axis_multi, dim="col"),
+        # "rotation": prepro.rotation_multi,
+        # "elastic": prepro.elastic_transform_multi,
+        # "shift": prepro.shift_multi,
+        # "shear": prepro.shear_multi,
+        # "zoom": prepro.zoom_multi,
     }
 
     @classmethod
@@ -333,7 +351,7 @@ class DataAugmentation:
         self.axis = axis
         self.include_original = include_original
 
-    def transform(self, data: np.ndarray) -> np.ndarray:
+    def transform(self, data: xr.DataArray) -> xr.DataArray:
         """Apply all the transformation steps to the input array sequentially.
 
         Args:
@@ -346,7 +364,7 @@ class DataAugmentation:
         """
         return reduce(lambda d, f: f(d), self.steps, data)
 
-    def augment(self, images: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    def augment(self, data: xr.DataArray) -> xr.DataArray:
         """Augment the original array by applying the transformations several times.
 
         Each transformation is saved to a temporary file to save memory while the rest
@@ -354,11 +372,11 @@ class DataAugmentation:
         together at the end of the process.
 
         Args:
-            images: Array with the images, of shape (n, h, w, c), with N the number of
+            images: Array with the images, of shape (n, h, w, c), with n the number of
                 images, (h, w) their height and width, respectively, and c the number
                 of channels per image.
             labels: Array with the labels corresponding to each image, of shape
-                (Nn h, w) and the same meaning than the images.
+                (n, h, w) and the same meaning than the images.
 
         Return:
             Tuple with two new arrays, the augmented images and the corresponding
@@ -366,30 +384,18 @@ class DataAugmentation:
             ones except along "axis" where they will be "times" bigger or
             "times + 1" if "include_original" is true.
         """
-        files = []
-        channels = images.shape[-1]
-        data = self._group(images, labels)
-        with tempfile.TemporaryDirectory() as r:
-            root = Path(r)
+        augmented = []
 
-            # Save the original data, if needed
-            if self.include_original:
-                files.append(root / "original.npy")
-                np.save(files[-1], data)
+        # Save the original data, if needed
+        if self.include_original:
+            augmented.append(data)
 
-            # Transform data and save it a number of times
-            for i in range(self.times):
-                t = self.transform(data)
-                files.append(root / f"{i}.npy")
-                np.save(files[-1], t)
-                del t
+        # Transform data and save it a number of times
+        for i in range(self.times):
+            logger.info(f"Processing augmentation step: {i+1}/{self.times}.")
+            augmented.append(self.transform(data))
 
-            # Read the data and concatenate all the arrays along the chosen axis
-            images, labels = zip(*[self._ungroup(np.load(f), channels) for f in files])
-            images = [Normal.run(img, method="zeromean_unitvar") for img in images]
-            return np.concatenate(images, axis=self.axis), np.concatenate(
-                labels, axis=self.axis
-            )
+        return xr.concat(augmented, dim="frame")
 
     @staticmethod
     def _group(images: np.ndarray, labels: np.ndarray) -> np.ndarray:

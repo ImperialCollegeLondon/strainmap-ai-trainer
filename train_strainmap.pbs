@@ -1,0 +1,14 @@
+#PBS -lselect=1:ncpus=16:mem=96gb:ngpus=4:gpu_type=RTX6000
+#PBS -lwalltime=01:00:00
+
+module load anaconda3/personal
+module load cuda
+
+source activate strainmap_ai
+
+cd $HOME/STRAINMAP/strainmap-ai-trainer
+
+# Generic:
+# python -m strainmap_ai NETCDF_FILES --model_path TRINED_MODEL
+python -m strainmap_ai ../../Data/ --model_path trained/crop64_int16_all_noaug
+
