@@ -16,17 +16,11 @@ def read_files(filenames: Union[str, List[str], List[Path]]) -> xr.DataArray:
     return data
 
 
-def filenames_from_csv(filename: Path) -> List[str]:
-    ...
-
-
 def load_data(filename: Path) -> xr.DataArray:
-    if filename.suffix == "csv":
-        filenames = filenames_from_csv(filename)
-    elif filename.is_dir():
+    if filename.is_dir():
         filenames = list(filename.glob("**/*_train.nc"))
     else:
-        raise ValueError("'filename' must be the path to a CSV file or to a directory.")
+        raise ValueError("'filename' must be the path to a directory.")
 
     return read_files(filenames)
 
