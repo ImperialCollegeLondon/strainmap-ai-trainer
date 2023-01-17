@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 def read_files(filenames: Union[str, List[str], List[Path]]) -> xr.DataArray:
+    if len(filenames) == 0:
+        return xr.DataArray()
+
     data = xr.open_mfdataset(filenames, combine="nested", concat_dim="frame")[
         "stacked"
     ].transpose("frame", "row", "col", "comp")
@@ -38,13 +41,13 @@ def load_data(filename: Path, test_patients: Tuple = ()) -> xr.DataArray:
     else:
         for f in filenames:
             for name in test_patients:
-                if name in str(f):
+                if f.stem.startswith(name):
                     test_filenames.append(f)
-                else:
-                    train_filenames.append(f)
+                    break
+            else:
+                train_filenames.append(f)
 
-    breakpoint()
-    return read_files(filenames)
+    return read_files(train_filenames), read_files(test_filenames)
 
 
 if __name__ == "__main__":

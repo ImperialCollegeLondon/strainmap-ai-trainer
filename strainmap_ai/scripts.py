@@ -18,24 +18,35 @@ def train(
     # Data compiling and loading
     # read CSV file
     logger.info("Starting data loading...")
-    data = load_data(filenames, test_patients)
-    max_rows = data.sizes["row"] - crop
-    max_cols = data.sizes["col"] - crop
-    data = data.sel(row=range(crop, max_rows), col=range(crop, max_cols))
+    train, test = load_data(filenames, test_patients)
+    max_rows = train.sizes["row"] - crop
+    max_cols = train.sizes["col"] - crop
+    train = train.sel(row=range(crop, max_rows), col=range(crop, max_cols))
     logger.info("... data loading complete!")
-    rows = data.sizes["row"]
-    cols = data.sizes["col"]
+    rows = train.sizes["row"]
+    cols = train.sizes["col"]
 
     logger.info("Starting pre-processing...")
-    augmented = DataAugmentation.factory().augment(data)
+    augmented = DataAugmentation.factory().augment(train)
     logger.info("... data pre-processing complete!")
 
-    # Normalise the data
+    # Normalise the train data
     logger.info("Starting data normalisation...")
-    labels = augmented.sel(comp="LABELS").data
-    images = Normal().run(
+    labels_train = augmented.sel(comp="LABELS").data
+    images_train = Normal().run(
         augmented.sel(comp=["MAG", "X", "Y", "Z"]).data, method="ubytes"
     )
+
+    # Normalise the test data
+    if len(test):
+        test = test.sel(row=range(crop, max_rows), col=range(crop, max_cols))
+        labels_test = test.sel(comp="LABELS").data
+        images_test = Normal().run(
+            test.sel(comp=["MAG", "X", "Y", "Z"]).data, method="ubytes"
+        )
+    else:
+        labels_test = test
+        images_test = test
     logger.info("... data normalisation complete!")
 
     # Model training
@@ -44,5 +55,11 @@ def train(
     model.img_height = rows
     model.img_width = cols
     model.compile_model()
-    model.train(np.asarray(images), np.asarray(labels), model_file)
+    model.train(
+        np.asarray(images_train),
+        np.asarray(labels_train),
+        np.asarray(images_test),
+        np.asarray(labels_test),
+        model_file,
+    )
     logger.info(f"Training complete! Trained model saved to: {model_file}")
