@@ -9,7 +9,7 @@ from typing import Callable, Dict, Optional, Tuple
 import numpy as np
 import toml
 import xarray as xr
-from keras import layers
+from keras import layers, metrics
 from keras.models import Model
 
 # from tensorlayer import prepro
@@ -164,7 +164,9 @@ class UNet:
         """
         self._model = self._modelstruct()
         self.model.compile(
-            optimizer="adam", loss="binary_crossentropy", metrics=["acc", "MeanIoU"]
+            optimizer="adam",
+            loss="binary_crossentropy",
+            metrics=["acc", metrics.MeanIoU(num_classes=2)],
         )
 
         if print_summary:
