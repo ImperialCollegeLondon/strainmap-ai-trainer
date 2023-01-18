@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 import xarray as xr
@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 def read_files(filenames: Union[str, List[str], List[Path]]) -> xr.DataArray:
+    if len(filenames) == 0:
+        return xr.DataArray()
+
     data = xr.open_mfdataset(filenames, combine="nested", concat_dim="frame")[
         "stacked"
     ].transpose("frame", "row", "col", "comp")
@@ -16,13 +19,35 @@ def read_files(filenames: Union[str, List[str], List[Path]]) -> xr.DataArray:
     return data
 
 
-def load_data(filename: Path) -> xr.DataArray:
+def load_data(filename: Path, test_patients: Tuple = ()) -> xr.DataArray:
+    """Loads data from NetCDF files, splitting them into train and test.
+
+    Args:
+        filename: Base directory where to start looking for NetCDF files.
+        test_patients: Tuple with the initials of the patients to use for testing.
+
+    Returns:
+        Tuple with the datarrays of the loaded data, one for test and another for train.
+    """
     if filename.is_dir():
         filenames = list(filename.glob("**/*_train.nc"))
     else:
         raise ValueError("'filename' must be the path to a directory.")
 
-    return read_files(filenames)
+    test_filenames = []
+    train_filenames = []
+    if len(test_patients) == 0:
+        train_filenames = filenames
+    else:
+        for f in filenames:
+            for name in test_patients:
+                if f.stem.startswith(name):
+                    test_filenames.append(f)
+                    break
+            else:
+                train_filenames.append(f)
+
+    return read_files(train_filenames), read_files(test_filenames)
 
 
 if __name__ == "__main__":

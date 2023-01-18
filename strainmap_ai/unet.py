@@ -9,7 +9,7 @@ from typing import Callable, Dict, Optional, Tuple
 import numpy as np
 import toml
 import xarray as xr
-from keras import layers
+from keras import layers, metrics
 from keras.models import Model
 
 # from tensorlayer import prepro
@@ -164,7 +164,9 @@ class UNet:
         """
         self._model = self._modelstruct()
         self.model.compile(
-            optimizer="adam", loss="binary_crossentropy", metrics=["acc"]
+            optimizer="adam",
+            loss="binary_crossentropy",
+            metrics=["acc", metrics.MeanIoU(num_classes=2)],
         )
 
         if print_summary:
@@ -176,15 +178,24 @@ class UNet:
             self.model.load_weights(model_file)
 
     def train(
-        self, images: np.ndarray, labels: np.ndarray, model_file: Optional[Path] = None
+        self,
+        images_train: np.ndarray,
+        labels_train: np.ndarray,
+        images_test: np.ndarray,
+        labels_test: np.ndarray,
+        model_file: Optional[Path] = None,
     ) -> None:
         """Train a model to best fit the labels based on the input images.
 
         Args:
-            images: Array of images that serve as input to the model of shape
+            train_images: Array of images that serve as input to the model of shape
                 (n, h, w, c)
-            labels: Array of labels that represent the expected output of the model of
-                shape (N, h, w).
+            train_labels: Array of labels that represent the expected output of the
+                model of shape (N, h, w).
+            test_images: Array of images that serve as test input to the model of shape
+                (n, h, w, c)
+            test_labels: Array of labels that represent the expected output of the test
+                of shape (N, h, w).
             model_file: If provided, if should be the path to the h5 file where the
                 weights will be saved once the training is complete.
 
@@ -192,13 +203,14 @@ class UNet:
             None
         """
         self.model.fit(
-            x=images,
-            y=labels[..., None],
+            x=images_train,
+            y=labels_train[..., None],
             batch_size=self.batch_size,
             epochs=self.epochs,
             verbose=self.verbose,
             callbacks=self.callbacks,
             validation_split=self.validation_split,
+            validation_data=(images_test, labels_test) if len(images_test) else None,
             shuffle=self.shuffle,
             initial_epoch=self.initial_epoch,
             steps_per_epoch=self.steps_per_epoch,
