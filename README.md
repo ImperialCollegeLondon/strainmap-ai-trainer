@@ -36,13 +36,13 @@ source activate strainmap_ai
 Then, run the trainig mmodule:
 
 ```bash
-python -m strainmap_ai NETCDF_FILES --model_path TRINED_MODEL --test PATIENT1,PATIENT2
+python -m strainmap_ai NETCDF_FILES --model_path TRAINED_MODEL --test PATIENT1,PATIENT2
 ```
 
 Where:
 - NETCDF_FILES: Parent directory where the `_train.nc` files (as produced by StrainMap)
   are located
-- TRINED_MODEL (optional): Location where to save the trained model.
+- TRAINED_MODEL (optional): Location where to save the trained model.
 - PATIENT1,PATIENT2,... (optional): Comma separated list of patients initials (must match the
   initials used in the NetCDF files) that will be used for testing. All the others will
   be used for trainnig.
