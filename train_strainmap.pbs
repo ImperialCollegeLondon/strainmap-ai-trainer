@@ -6,9 +6,9 @@ module load cuda
 
 source activate strainmap_ai
 
-cd $HOME/STRAINMAP/strainmap-ai-trainer
+cd $PBS_O_WORKDIR
 
 # Generic:
-# python -m strainmap_ai NETCDF_FILES --model_path TRINED_MODEL --test PATIENT1,PATIENT2
-python -m strainmap_ai ../../Data/ --model_path trained/crop64_int16_all_with_test --test WS,AD
+# python -m strainmap_ai NETCDF_FILES --model_path TRAINED_MODEL --test PATIENT1,PATIENT2
+python -m strainmap_ai $RDS_PROJECT/strainmap/live/Data/ --model_path trained/crop64_int16_all_with_test --test WS,AD
 
