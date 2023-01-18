@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # filenames = Path(__file__).parent.parent.parent / "Data"
     filenames = Path(args.datapath).resolve()
     model_path = Path(args.model_path).resolve() if args.model_path else None
-    test_patients = tuple(args.test.split(",")) if args.model_path else ()
+    test_patients = tuple(args.test.split(",")) if args.test else ()
     logger.info(f"Path where to search for data files: {filenames}")
     logger.info(f"Path where the trained model will be saved: {model_path}")
 
